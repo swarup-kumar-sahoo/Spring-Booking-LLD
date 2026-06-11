@@ -1,6 +1,7 @@
 package com.booking.shyamoli.controller;
 
 import com.booking.shyamoli.entity.Trip;
+import com.booking.shyamoli.entity.Booking;
 import com.booking.shyamoli.service.BookingService;
 import com.booking.shyamoli.service.TripService;
 import lombok.RequiredArgsConstructor;
@@ -96,4 +97,90 @@ public class TripController {
                 response
         );
     }
+    @GetMapping("/{tripId}/available-seats")
+    public ResponseEntity<Map<String,Object>> getAvailableSeats(
+            @PathVariable Long tripId
+    ){
+
+        List<String> allSeats = new ArrayList<>();
+
+        for(int i=1;i<=21;i++){
+            allSeats.add("U"+i);
+            allSeats.add("L"+i);
+        }
+
+        List<String> bookedSeats =
+                bookingService.getBookings(tripId)
+                        .stream()
+                        .map(Booking::getSeatNo)
+                        .toList();
+
+        allSeats.removeAll(bookedSeats);
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "availableSeats",
+                        allSeats
+                )
+        );
+    }
+
+    @GetMapping("/{tripId}/passengers")
+    public ResponseEntity<List<Map<String,Object>>> getPassengers(
+            @PathVariable Long tripId
+    ){
+
+        List<Map<String,Object>> passengers =
+                bookingService.getBookings(tripId)
+                        .stream()
+                        .map(b -> {
+                            Map<String,Object> passenger =
+                                    new HashMap<>();
+
+                            passenger.put(
+                                    "name",
+                                    b.getPassengerName()
+                            );
+
+                            passenger.put(
+                                    "seatNo",
+                                    b.getSeatNo()
+                            );
+
+                            passenger.put(
+                                    "phoneNumber",
+                                    b.getPhoneNumber()
+                            );
+
+                            return passenger;
+                        })
+                        .toList();
+
+        return ResponseEntity.ok(passengers);
+    }
+
+    @GetMapping("/{tripId}/summary")
+    public ResponseEntity<Map<String,Object>> getSummary(
+            @PathVariable Long tripId
+    ){
+
+        int totalSeats = 42;
+
+        int bookedSeats =
+                bookingService.getBookings(tripId)
+                        .size();
+
+        int availableSeats =
+                totalSeats - bookedSeats;
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "tripId", tripId,
+                        "totalSeats", totalSeats,
+                        "bookedSeats", bookedSeats,
+                        "availableSeats", availableSeats
+                )
+        );
+    }
+
 }

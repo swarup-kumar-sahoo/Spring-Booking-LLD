@@ -101,4 +101,47 @@ public class BookingService {
         return bookingRepository
                 .findByTripId(tripId);
     }
+    public Booking getBooking(Long bookingId){
+
+        return bookingRepository
+                .findById(bookingId)
+                .orElseThrow(
+                        () -> new RuntimeException(
+                                "Booking not found"
+                        )
+                );
+    }
+
+    public List<Booking> bookingHistory(
+            String phoneNumber
+    ){
+
+        return bookingRepository
+                .findByPhoneNumber(
+                        phoneNumber
+                );
+    }
+
+    public String cancelBooking(
+            Long bookingId
+    ){
+
+        Booking booking =
+                bookingRepository
+                        .findById(bookingId)
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "Booking not found"
+                                        )
+                        );
+
+        booking.setBookingStatus(
+                BookingStatus.CANCELLED
+        );
+
+        bookingRepository.save(booking);
+
+        return "Booking cancelled successfully";
+    }
 }

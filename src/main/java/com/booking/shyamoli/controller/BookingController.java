@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -39,6 +40,47 @@ public class BookingController {
         return ResponseEntity.ok(
                 bookingService
                         .getBookings(tripId)
+        );
+    }
+
+    @GetMapping("/{bookingId}")
+    public ResponseEntity<Booking> getBooking(
+            @PathVariable Long bookingId
+    ){
+
+        return ResponseEntity.ok(
+                bookingService.getBooking(
+                        bookingId
+                )
+        );
+    }
+
+    @GetMapping("/history/{phoneNumber}")
+    public ResponseEntity<List<Booking>>
+    getBookingHistory(
+            @PathVariable String phoneNumber
+    ){
+
+        return ResponseEntity.ok(
+                bookingService.bookingHistory(
+                        phoneNumber
+                )
+        );
+    }
+
+    @DeleteMapping("/{bookingId}")
+    public ResponseEntity<Map<String,String>>
+    cancelBooking(
+            @PathVariable Long bookingId
+    ){
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "message",
+                        bookingService.cancelBooking(
+                                bookingId
+                        )
+                )
         );
     }
 }
